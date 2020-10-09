@@ -1,7 +1,4 @@
-import re
-import os
-
-regex = r"(\{.*\})"
+import re, os
 
 if_tags = {
     "and": "and",
@@ -48,12 +45,12 @@ def find_extend_tag(filetext):
 
     return filetext
 
-
 for file in os.listdir('files/'):
     if not file.startswith('.'):
         filename = file.replace(".tpl", ".twig")
         test_str = open("files/"+file)
         file_str = test_str.read()
+        regex = r"(\{.*\})"
         matches = re.finditer(regex, file_str, re.MULTILINE)
 
         for matchNum, match in enumerate(matches, start=1):
