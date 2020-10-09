@@ -26,7 +26,6 @@ generic_tags = {
     "block": "{%block %% %}"
 }
 
-
 def find_block_tag(filetext):
     regex_block = r"\{block\s*?name=\"(.*)\"\s*?\}"
     matches = re.finditer(regex_block, filetext, re.MULTILINE)
@@ -38,19 +37,32 @@ def find_block_tag(filetext):
 
     return filetext
 
-
-for file in os.listdir('files/'):
-    filename = file.replace(".tpl", ".twig")
-    test_str = open("files/"+file)
-    file_str = test_str.read()
-    matches = re.finditer(regex, file_str, re.MULTILINE)
+def find_extend_tag(filetext):
+    regex_block = r"\{extends\s*?file=\"(.*)\"\s*?\}"
+    matches = re.finditer(regex_block, filetext, re.MULTILINE)
 
     for matchNum, match in enumerate(matches, start=1):
-        match = match.group()
-        if match in close_tags.keys():
-            file_str = file_str.replace(match, close_tags[match])
+        matched_text = match.group(1)
 
-    file_str = find_block_tag(file_str)
+        filetext = filetext.replace(match.group(), "{{% extends \"{text}\" %}}".format(text = matched_text))
 
-    new = open("formated/"+filename, 'x')
-    new.write(file_str)
+    return filetext
+
+
+for file in os.listdir('files/'):
+    if not file.startswith('.'):
+        filename = file.replace(".tpl", ".twig")
+        test_str = open("files/"+file)
+        file_str = test_str.read()
+        matches = re.finditer(regex, file_str, re.MULTILINE)
+
+        for matchNum, match in enumerate(matches, start=1):
+            match = match.group()
+            if match in close_tags.keys():
+                file_str = file_str.replace(match, close_tags[match])
+
+        file_str = find_block_tag(file_str)
+        file_str = find_extend_tag(file_str)
+
+        new = open("formated/"+filename, 'x')
+        new.write(file_str)
