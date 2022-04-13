@@ -7,7 +7,9 @@ if_tags = {
 }
 
 if_tags_conditions = {
+    "neq": "!==",
     "eq": "===",
+    "gt": ">=",
     "bt": ">=",
     "lt": "<="
 }
@@ -111,9 +113,12 @@ def find_if_tag(filetext):
 
             matched_if_text = matched_if_text.replace("$", "")
 
-            for twig, smarty in if_tags_conditions:
-                if matched_if_text.find(twig):
-                    matched_if_text.replace(twig, smarty)
+            for smarty in if_tags_conditions:
+               # print(matched_if_text.find(smarty))
+               if matched_if_text.find(smarty) > 0:
+                   # print("ENTREI")
+                   # print([matched_if_text,smarty, if_tags_conditions[smarty]], matched_if_text.replace(smarty, if_tags_conditions[smarty]))
+                   matched_if_text = matched_if_text.replace(smarty, if_tags_conditions[smarty])
 
             ifBlock = "{{% if{} %}}".format(matched_if_text)
             filetext = filetext.replace(matched_text_all, ifBlock)
@@ -136,9 +141,12 @@ def find_elseif_tag(filetext):
 
             matched_if_text = matched_if_text.replace("$", "")
 
-            for twig, smarty in if_tags_conditions:
-                if matched_if_text.find(twig):
-                    matched_if_text.replace(twig, smarty)
+            for smarty in if_tags_conditions:
+               # print(matched_if_text.find(smarty))
+               if matched_if_text.find(smarty) > 0:
+                   # print("ENTREI")
+                   # print([matched_if_text,smarty, if_tags_conditions[smarty]], matched_if_text.replace(smarty, if_tags_conditions[smarty]))
+                   matched_if_text = matched_if_text.replace(smarty, if_tags_conditions[smarty])
 
             ifBlock = "{{% elseif{} %}}".format(matched_if_text)
             filetext = filetext.replace(matched_text_all, ifBlock)
@@ -166,30 +174,31 @@ def find_variables_tag(filetext):
         
     return filetext
 
-# for file in os.listdir('files/'):
-#     if not file.startswith('.'):
-#         print(file)
-        # filename = file.replace(".tpl", ".twig")
-        # test_str = open("files/"+file)
-        # file_str = test_str.read()
-        # regex = r"(\{.*\})"
-        # matches = re.finditer(regex, file_str, re.MULTILINE)
+for file in os.listdir('files/'):
+    if not file.startswith('.'):
+        print(file)
+        filename = file.replace(".tpl", ".twig")
+        test_str = open("files/"+file)
+        file_str = test_str.read()
+        regex = r"(\{.*\})"
+        matches = re.finditer(regex, file_str, re.MULTILINE)
+#
+        for matchNum, match in enumerate(matches, start=1):
+            match = match.group()
+            if match in close_tags.keys():
+                file_str = file_str.replace(match, close_tags[match])
+#
+        file_str = find_block_tag(file_str)
+        file_str = find_extend_tag(file_str)
+        file_str = find_foreach_tag(file_str)
+        file_str = find_if_tag(file_str)
+        file_str = find_elseif_tag(file_str)
+        file_str = find_variables_tag(file_str)
+#
+        new = open("formated/"+filename, 'w+')
+        new.write(file_str)
 
-        # for matchNum, match in enumerate(matches, start=1):
-        #     match = match.group()
-        #     if match in close_tags.keys():
-        #         file_str = file_str.replace(match, close_tags[match])
-
-        # file_str = find_block_tag(file_str)
-        # file_str = find_extend_tag(file_str)
-        # file_str = find_foreach_tag(file_str)
-        # file_str = find_if_tag(file_str)
-        # file_str = find_elseif_tag(file_str)
-        # file_str = find_variables_tag(file_str)
-
-        # new = open("formated/"+filename, 'w+')
-        # new.write(file_str)
-
+"""
 walk_dir = './files'
 
 print('walk_dir = ' + walk_dir)
@@ -216,6 +225,6 @@ for root, subdirs, files in os.walk(walk_dir):
 
             with open(file_path, 'rb') as f:
                 f_content = f.read()
-                # list_file.write(('The file %s contains:\n' % filename).encode('utf-8'))
-                # list_file.write(f_content)
-                # list_file.write(b'\n')
+                list_file.write(('The file %s contains:\n' % filename).encode('utf-8'))
+                list_file.write(f_content)
+                list_file.write(b'\n') """

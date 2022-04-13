@@ -1,27 +1,27 @@
 The file cart_reminder.tpl contains:
 
-{**?utm_source=siteemail&utm_medium=email&utm_campaign={$campaign}**}
-{extends file="email/include/template.tpl"}
+{**?utm_source=siteemail&utm_medium=email&utm_campaign={{ campaign }}**}
+{% extends "email/include/template.tpl" %}
 
-{block name="content"}
+{% block content %}
 {*    {assign var="campaign" value="Cart%20Reminder" scope="parent"}*}
-    <h1 style="text-align: center;">Olá {$totais.nome}!</h1>
+    <h1 style="text-align: center;">Olá {{ totais.nome }}!</h1>
 
-    {if $totais.oferta eq "1"}
+    {% if totais.oferta === "1" %}
         <h2 style="text-align: center;">Aproveite a oferta dos portes *</h2>
-    {/if}
+    {% endif %}
 
     <img src="http://www.pluricosmetica.com/img/new_banner_lateral.jpg" alt="Oferta Portes" align="left" style="margin:20px; width: 150px;"><br/>
 
     <p>&nbsp;</p>
     <p>&nbsp;</p>
-    <p>O seu carrinho de compras está à sua espera em <a href="https://www.pluricosmetica.com/cart/checkout/?utm_source=siteemail&utm_medium=email&utm_campaign={$campaign}">pluricosmetica.com</a></p>
+    <p>O seu carrinho de compras está à sua espera em <a href="https://www.pluricosmetica.com/cart/checkout/?utm_source=siteemail&utm_medium=email&utm_campaign={{ campaign }}">pluricosmetica.com</a></p>
 
     <p>&nbsp;</p>
     <p>Complete a sua encomenda hoje mesmo.</p>
     <p>&nbsp;</p>
 
-    {if $totais.promocoes|count gt 1}
+    {% if totais.promocoes|count >= 1 %}
         <h3 style="clear:both; text-align: center;">Promocoes Aplicadas</h3>
         <table cellspacing="0" width="100%">
             <thead>
@@ -41,31 +41,31 @@ The file cart_reminder.tpl contains:
             </thead>
             <tbody>
 
-            {foreach key=id item=promocao from=$totais.promocoes}
-                {if $id neq "total"}
+            {% for id,promocao in totais.promocoes %}
+                {% if id !== "total" %}
                     <tr>
                         <td align="left">
-                            {$promocao.number}&nbsp;X
+                            {{ promocao.number }}&nbsp;X
                         </td>
                         <td>
-                            {$promocao.nome}
+                            {{ promocao.nome }}
                         </td>
                         <td align="right">
-                            {$promocao.valor|number_format:2:".":","}&nbsp;€
+                            {{ promocao.valor|number_format:2:".":"," }}&nbsp;€
                         </td>
                         <td  align="right">
                             {($promocao.valor*$promocao.number)|number_format:2:".":","}&nbsp;€
                         </td>
                     </tr>
-                {/if}
-            {/foreach}
+                {% endif %}
+            {% endfor %}
             <tr>
                 <td colspan="3" align="right">Total:</td>
                 <td align="right">{($totais.promocoes.total)|number_format:2:".":","}&nbsp;€</td>
             </tr>
             </tbody>
         </table>
-    {/if}
+    {% endif %}
     <h3 style="clear:both; text-align: center;">Carrinho de Compras</h3>
     <table cellpadding="0" cellspacing="1" border="0" width="100%">
         <thead>
@@ -90,36 +90,36 @@ The file cart_reminder.tpl contains:
         </thead>
         <tbody>
 
-        {foreach key=id item=produto from=$carrinho}
-            {if $produto.qty gt 0}
+        {% for id,produto in carrinho %}
+            {% if produto.qty >= 0 %}
                 <tr>
 
                     <td align="left">
-                        {if $produto.imgs.imgs.0 neq ""}
+                        {% if produto.imgs.imgs.0 !== "" %}
                             {assign var="img" value=$produto.imgs.imgs.0}
-                        {else}
+                        {% else %}
                             {assign var="img" value="no.jpg"}
-                        {/if}
-                        <a class="lightbox pull-left" href="http://www.pluricosmetica.com{imagesize src="/media/produtos/`$img`" width=500 height=500}?utm_source=siteemail&utm_medium=email&utm_campaign={$campaign}" data-plugin-options='{literal}{"type":"image"}{/literal}'>
+                        {% endif %}
+                        <a class="lightbox pull-left" href="http://www.pluricosmetica.com{imagesize src="/media/produtos/`$img`" width=500 height=500}?utm_source=siteemail&utm_medium=email&utm_campaign={{ campaign }}" data-plugin-options='{literal}{"type":"image"}{/literal}'>
                             <img class="img-responsive" width="25" src="http://www.pluricosmetica.com{imagesize src="/media/produtos/`$img`" width=25 height=25}">
                         </a>
                     </td>
                     <td align="left">
-                        {$produto.qty}X
+                        {{ produto.qty }}X
                     </td>
                     <td align="left">
-                        <a href="https://www.pluricosmetica.com/catalog/{$produto.id_categ}/{$produto.id}/?utm_source=siteemail&utm_medium=email&utm_campaign={$campaign}&utm_content=itemlink">{$produto.nome|lower|capitalize:true}</a>
+                        <a href="https://www.pluricosmetica.com/catalog/{$produto.id_categ}/{$produto.id}/?utm_source=siteemail&utm_medium=email&utm_campaign={{ campaign }}&utm_content=itemlink">{$produto.nome|lower|capitalize:true}</a>
                     </td>
                     <td  align="right">
-                        {$produto.preco|number_format:2:".":","}&nbsp;€
+                        {{ produto.preco|number_format:2:".":"," }}&nbsp;€
                     </td>
 
                     <td align="right">
-                        {$produto.subtotal|number_format:2:".":","}&nbsp;€
+                        {{ produto.subtotal|number_format:2:".":"," }}&nbsp;€
                     </td>
                 </tr>
-            {/if}
-        {/foreach}
+            {% endif %}
+        {% endfor %}
 
 
         </tbody>
@@ -133,19 +133,19 @@ The file cart_reminder.tpl contains:
 
 
 
-    <center><a href="https://www.pluricosmetica.com/cart/checkout/?utm_source=siteemail&utm_medium=email&utm_campaign={$campaign}"><img src="http://www.pluricosmetica.com/img/mail/new_finalizar.jpg" style="height: 50px; margin: 30px auto;"></a></center>
+    <center><a href="https://www.pluricosmetica.com/cart/checkout/?utm_source=siteemail&utm_medium=email&utm_campaign={{ campaign }}"><img src="http://www.pluricosmetica.com/img/mail/new_finalizar.jpg" style="height: 50px; margin: 30px auto;"></a></center>
     <p>&nbsp;</p>
     <p>Reparamos que não terminou a sua encomenda durante a sua última visita ao nosso site.
-        <br/> Guardámos o carrinho para si: <a href="https://www.pluricosmetica.com/cart/checkout/?utm_source=siteemail&utm_medium=email&utm_campaign={$campaign}">Carregue aqui para ver o seu carrinho de compras.</a></p>
+        <br/> Guardámos o carrinho para si: <a href="https://www.pluricosmetica.com/cart/checkout/?utm_source=siteemail&utm_medium=email&utm_campaign={{ campaign }}">Carregue aqui para ver o seu carrinho de compras.</a></p>
     <p>&nbsp;</p>
     <p>Se ocorreu algum problema durante a finalização ou acha confuso, contacte-nos por email para geral@pluricosmetica.com ou por telefone 223 753 749 para que possamos ajudar.</p>
     <p>&nbsp;</p>
-    <p>Caso tenha esquecido a sua password pode recuperá-la no link <a href="https://www.pluricosmetica.com/client/recoverpass/?utm_source=siteemail&utm_medium=email&utm_campaign={$campaign}&utm_content=recover">recuperar password</a> na area de cliente; lembramos também que pode associar o seu facebook com a sua conta para que possa fazer login de forma mais simples no nosso site.</p>
+    <p>Caso tenha esquecido a sua password pode recuperá-la no link <a href="https://www.pluricosmetica.com/client/recoverpass/?utm_source=siteemail&utm_medium=email&utm_campaign={{ campaign }}&utm_content=recover">recuperar password</a> na area de cliente; lembramos também que pode associar o seu facebook com a sua conta para que possa fazer login de forma mais simples no nosso site.</p>
     <p>&nbsp;</p>
-    <p>Obrigado por visitar <a href="https://www.pluricosmetica.com/?utm_source=siteemail&utm_medium=email&utm_campaign={$campaign}">pluricosmetica.com</a></p>
+    <p>Obrigado por visitar <a href="https://www.pluricosmetica.com/?utm_source=siteemail&utm_medium=email&utm_campaign={{ campaign }}">pluricosmetica.com</a></p>
     <p>&nbsp;</p>
-    <p>* Portes grátis para encomendas a partir de {$portes_gratis_info}€, inferiores a 10kg, exceto equipamentos e perfumes. Exclusivo para Portugal Continental.</p>
+    <p>* Portes grátis para encomendas a partir de {{ portes_gratis_info }}€, inferiores a 10kg, exceto equipamentos e perfumes. Exclusivo para Portugal Continental.</p>
     <p>** Compras mínimas de 5€ na loja online.</p>
-{/block}
+{% endblock %}
 The file my-directory-list.txt contains:
 
