@@ -1,0 +1,631 @@
+{extends file="template.tpl"}
+
+{block name="title"}Pluricosmética - Objetivos{/block}
+
+{block name="bread"}
+    <h1>
+        Objetivos
+        <small>Control panel</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-tachometer-alt"></i> Home</a></li>
+        <li class="active">Objetivos</li>
+    </ol>
+{/block}
+
+{block name="main"}
+    <style>
+        .dropdown-menu > li > a:hover {
+            color: #f9f9f9 !important;
+        }
+    {/if}
+
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="#">
+                            <div style="display: flex;width: 100%;">
+                                <div style="margin:5px;height: 10px;width: 10px;border-radius:5px;background-color:lightblue;border: 1px solid black;"></div>
+                                <span> - Resultado do Dia</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <div style="display: flex;width: 100%;">
+                                <div style="margin:5px;height: 10px;width: 10px;border-radius:5px;background-color:red;border: 1px solid black;"></div>
+                                <span> - Objetivo</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {if $user_perms.objetivos.detalhes && $ordem_slug === 'mes' || $ordem_slug === 'personalizada' || $ordem_slug === 'mes_antigo'}
+                        <li class="dropdown">
+                            {*                            <a href="?ordem=mes{if $finssemana eq false}&finssemana=1{/if}">{if $finssemana eq false}Mostrar Fins de Semana{else}Não mostrar Fins de Semana{/if}</a>*}
+                            <a href="?{$url}">{if $finssemana eq false}Mostrar Fins de Semana{else}Não mostrar Fins de Semana{/if}</a>
+                        </li>
+                    {/if}
+                    {if $user_perms.objetivos.detalhes && $ordem_slug === 'mes' || $ordem_slug === 'personalizada' || $ordem_slug === 'mes_antigo'}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-haspopup="true"
+                               aria-expanded="false">Exportar <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/objetivos?{$url_invert}&exportar=1"
+                                       style="text-transform: capitalize"> CSV </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {/if}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">A ver <b>{$ordem}</b> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/objetivos?ordem=semana" style="text-transform: capitalize"> semana atual</a>
+                            </li>
+                            {*                            <li><a href="/objetivos?ordem=15dias" style="text-transform: capitalize"> últimos 15*}
+                            {*                                    dias</a></li>*}
+                            <li><a href="/objetivos?ordem=mes" style="text-transform: capitalize"> mês atual</a></li>
+                            {if $user_perms.objetivos.detalhes}
+                                <li><a href="/objetivos?ordem=ano" style="text-transform: capitalize"> ano atual</a>
+                                </li>
+                                <li><a href="/objetivos?ordem=todos" style="text-transform: capitalize"> todos</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="javascript:void(0)" data-toggle="modal"
+                                       data-target="#myModal">Escolher Mês</a></li>
+                                <li><a href="/objetivos">Limpar Pesquisa</a></li>
+                            {/if}
+                        </ul>
+                    </li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+    {if $ordem_slug === 'mes'}
+        <section class="content">
+            <div class="row">
+                <div class="col-12">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <h4 class="font-bold upper margin">Objetivos - Resumo</h4>
+                            <div class="row margin">
+                                <div class="col-12 text-center">
+                                    <div id="chartjs-legend"></div>
+                                    <canvas id="myChart" height="100vw"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {/if}
+    <section class="content">
+        <div class="row">
+            {if !empty($n_linhas_p_arrumar['content'])}
+                <div class="col-sm-12 col-md-12 col-lg-6" id="n_linhas_p_arrumar">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <div class="">
+                                <h4 class="font-bold upper margin">
+                                    Número de Linhas Por Arrumar
+                                </h4>
+                                <p class="margin">Total - <b>{$n_linhas_p_arrumar['total']}</b> ({$ordem})</p>
+                                {if $ordem_slug === 'mes' || $ordem_slug === 'personalizada' || $ordem_slug === 'mes_antigo'}{if $user_perms.objetivos.detalhes}
+                                    <p
+                                            class="margin">Media Objetivo Mensal - {$targets['n-linhas-p-arrumar']} /
+                                    Media dos resultados - <span
+                                            style="font-weight: 900;color:{($n_linhas_p_arrumar['avg']['avg'] > $targets['n-linhas-p-arrumar']) ? ($targets['n-linhas-p-arrumar']>$n_linhas_p_arrumar['avg']['avg']) ?'orange' :'red' : 'green'} ;">{round($n_linhas_p_arrumar['avg']['avg'])}</span>
+                                    </p>{/if}{/if}
+                                <div id="n-linhas-p-arrumar" style="height: 190px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {/if}
+            {if !empty($n_linhas_p_separar_p_picking['content'])}
+                <div class="col-sm-12 col-md-12 col-lg-6" id="n_linhas_p_separar_p_picking">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <div class="">
+                                <h4 class="font-bold upper margin">
+                                    Número de Linhas Por Separar Para Picking
+                                </h4>
+                                <p class="margin">Total - <b>{$n_linhas_p_separar_p_picking['total']}</b> ({$ordem})</p>
+                                {if $ordem_slug === 'mes' || $ordem_slug === 'personalizada' || $ordem_slug === 'mes_antigo'}{if $user_perms.objetivos.detalhes}
+                                    <p class="margin">Media Objetivo Mensal - {$targets['n-linhas-p-separar-p-picking']}
+                                        / Media dos resultados - <span
+                                                style="font-weight: 900;color:{($n_linhas_p_separar_p_picking['avg']['avg'] > $targets['n-linhas-p-separar-p-picking']) ? ($targets['n-linhas-p-separar-p-picking']>$n_linhas_p_separar_p_picking['avg']['avg']) ? 'orange' :'red' : 'green'} ;">{round($n_linhas_p_separar_p_picking['avg']['avg'])}</span>
+                                    </p>
+                                {/if}{/if}
+                                <div id="n-linhas-p-separar-p-picking" style="height: 190px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {/if}
+        </div>
+    </section>
+    <section class="content">
+        <div class="row">
+            {if !empty($erros_stock['content'])}
+                <div class="col-sm-12 col-md-12 col-lg-6" id="erros_stock">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <div>
+                                <h4 class="font-bold upper margin">Erros de Stock</h4>
+                                <p class="margin">Total - <b>{$erros_stock['total']}</b> ({$ordem})</p>
+                                {if $ordem_slug === 'mes' || $ordem_slug === 'personalizada' || $ordem_slug === 'mes_antigo'}{if $user_perms.objetivos.detalhes}
+                                    <p
+                                            class="margin">Media Objetivo Mensal- {$targets['erros-stock']} / Media dos
+                                    resultados - <span
+                                            style="font-weight: 900;color: {($erros_stock['avg']['avg'] > $targets['erros-stock'] ) ? ($targets['erros-stock']>$erros_stock['avg']['avg']) ? 'orange' : 'red' : 'green'};">{round($erros_stock['avg']['avg'])}</span>
+                                    </p>{/if}{/if}
+                                <div id="erros-stock" style="height: 190px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {/if}
+            {if !empty($artigos_danificados['content'])}
+                <div class="col-sm-12 col-md-12 col-lg-6" id="artigos_danificados">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <div>
+                                <h4 class="font-bold upper margin">Artigos Danificados</h4>
+                                {if $ordem_slug === 'mes' || $ordem_slug === 'personalizada' || $ordem_slug === 'mes_antigo'}
+                                    {if $user_perms.objetivos.detalhes}
+                                        <p
+                                                class="margin">Media Objetivo Mensal -
+                                            <b>{$targets['artigos-danificados']}
+                                                %</b> / Media dos
+                                            resultados - <span
+                                                    style="font-weight: 900;color: {if $targets['artigos-danificados'] > round($artigos_danificados['avg']['avg'],4) * 100} green {else} red {/if}">{round($artigos_danificados['avg']['avg'],4) * 100} % </span>
+                                        </p>
+                                    {/if}
+                                {/if}
+                                <span class="margin">({$ordem})</span>
+                                <div id="artigos-danificados" style="height: 190px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {/if}
+        </div>
+    </section>
+    <section class="content">
+        <div class="row">
+            {if !empty($palete_p_arrumar['content'])}
+                <div class="col-sm-12 col-md-12 col-lg-6" id="n_paletes_p_arrumar">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <div class="">
+                                <h4 class="font-bold upper margin">
+                                    Paletes por Arrumar
+                                </h4>
+                                <p class="margin">Total - <b>{$palete_p_arrumar['total']}</b> ({$ordem})</p>
+                                {if $ordem_slug === 'mes' || $ordem_slug === 'personalizada' || $ordem_slug === 'mes_antigo'}{if $user_perms.objetivos.detalhes}
+                                    <p
+                                            class="margin">Media Objetivo Mensal - {$targets['n-paletes-p-arrumar']} /
+                                    Media dos resultados - <span
+                                            style="font-weight: 900; color: {($palete_p_arrumar['avg']['avg'] > $targets['n-paletes-p-arrumar']) ? ($targets['n-paletes-p-arrumar']>$palete_p_arrumar['avg']['avg']) ?'orange' :'red' : 'green'};">{round($palete_p_arrumar['avg']['avg'])}</span>
+                                    </p>{/if}{/if}
+                                <div id="n-paletes-p-arrumar" style="height: 190px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {/if}
+
+            {if !empty($tempo_max_abertura['content'])}
+                <div class="col-sm-12 col-md-12 col-lg-6" id="tempo_maximo_abertura">
+                    <div class="box box-primary">
+                        <div class="box-body text-center">
+                            <h4 class="font-bold upper margin">{$tempo_max_abertura['objetivo']['nome']}</h4>
+                            <h3>{$tempo_max_abertura['avg']['avg']}
+                                <small>(dias)</small>
+                                <br>
+
+                            </h3>
+                            <p>Média Limite - {$tempo_max_abertura['objetivo']['target']}
+                                <small>(dias)</small>
+                            </p>
+                            <canvas width=380 height=150 id="gauge"></canvas>
+                        </div>
+                    </div>
+                </div>
+            {/if}
+        </div>
+    </section>
+
+    {if !empty($capacidade_separacao['content'])}
+        <section class="content" id="capacidade_separacao_1">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <div class="">
+                                <h4 class="font-bold upper margin">
+                                    Capacidade Separação
+                                </h4>
+                                <p class="margin">({$ordem})</p>
+                                {if $ordem_slug === 'mes' || $ordem_slug === 'personalizada' || $ordem_slug === 'mes_antigo'}{if $user_perms.objetivos.detalhes}
+                                    <p class="margin">Media Objetivo Mensal - {$targets['capacidade-separacao']}
+                                        / Media dos resultados - <span
+                                                style="font-weight: 900;color:{($capacidade_separacao['avg']['avg'] > $targets['capacidade-separacao']) ? ($targets['capacidade-separacao']>$capacidade_separacao['avg']['avg']) ? 'orange' :'red' : 'green'} ;">{round($capacidade_separacao['avg']['avg'],2)}</span>
+                                    </p>
+                                {/if}{/if}
+                                <div id="capacidade_separacao" style="height: 190px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {/if}
+
+    {if !empty($n_encomendas_p_enviar_loja_online['content'])}
+        <section class="content" id="n_encomendas_p_enviar_online">
+            <div class="row">
+                <div class="col-sm-12 col-md-12 col-lg-6">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <div class="">
+                                <h4 class="font-bold upper margin">
+                                    Nr. de Encomendas por Enviar - Loja Online
+                                </h4>
+                                <p class="margin">{*Total - <b>{$capacidade_separacao['total']}</b>*} ({$ordem})</p>
+                                {if $ordem_slug === 'mes' || $ordem_slug === 'personalizada' || $ordem_slug === 'mes_antigo'}{if $user_perms.objetivos.detalhes}
+                                    <p class="margin">Media Objetivo Mensal - {$targets['n-encomendas-p-enviar-online']}
+                                        / Media dos resultados - <span
+                                                style="font-weight: 900;color:{($n_encomendas_p_enviar_loja_online['avg']['avg'] > $targets['n-encomendas-p-enviar-online']) ? ($targets['n-encomendas-p-enviar-online']>$n_encomendas_p_enviar_loja_online['avg']['avg']) ? 'orange' :'red' : 'green'} ;">{round($n_encomendas_p_enviar_loja_online['avg']['avg'])}</span>
+                                    </p>
+                                {/if}{/if}
+                                <div id="n_encomendas_p_enviar_loja_online" style="height: 190px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {/if}
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Pesquisa Personalizada</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="/objetivos" method="get">
+                        <ul>
+                            {foreach from=$years_months item=info}
+                                <li>
+                                    <a href="/objetivos?ordem=mes_antigo&ano={$info['yy']}&mes={$info['mon']}">{$info['year_m']}</a>
+                                </li>
+                            {/foreach}
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        ol#chart,
+        ul#chart {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        ul#chart li {
+            display: inline-table;
+        }
+
+        #chartjs-legend {
+            width: 100%;
+            bottom: 10%;
+        }
+
+        #chartjs-legend li {
+            cursor: pointer;
+            margin: 10px 4px;
+        }
+
+        #chartjs-legend li span {
+            position: relative;
+            padding: 6px 20px;
+            border-radius: 13px;
+            color: white;
+            z-index: 2;
+        }
+    </style>
+    <div style="margin-bottom: 200px"></div>
+    <script src="../../js/plugins/morris/morris.min.js" type="text/javascript"></script>
+    <script src="/js/raphael-min.js"></script>
+    <script src="/js/gauge.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js"></script>
+    <script type="text/javascript">
+        {if $ordem_slug === 'mes'}
+        function stats_chart_update(name, target, current) {
+            $el_title = $('#stats_chart > #title');
+            $el_target = $('#stats_chart > #target');
+            $el_current = $('#stats_chart > #current');
+
+            $el_title.html(name);
+            $el_target.html(target);
+            $el_current.html(current);
+        }
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                label: '# TESTS',
+                labels: [{$custom_targets['names']}],
+                datasets: [{
+                    data: [{$custom_targets['slices']}],
+                    dataDefault: [{$custom_targets['slices']}],
+                    backgroundColor: [
+                        {$custom_targets['customColors']}
+                    ],
+                    customData: [{$custom_targets['customDatas']}],
+                    customValues: [{$custom_targets['customValues']}],
+                    customValuesToDefault: [{$custom_targets['customValues']}],
+                    customValuesObjects: [{$custom_targets_placing}],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                legend: {
+                    display: false
+                },
+                legendCallback: function (chart) {
+                    var text = [];
+                    text.push('<ul id="chart" class="' + chart.id + '-legend">');
+                    for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
+                        text.push('<li><span id="" style="background-color:' + chart.data.datasets[0].backgroundColor[i] + '">');
+                        if (chart.data.labels[i]) {
+                            text.push(chart.data.labels[i]);
+                        }
+                        text.push('</span></li>');
+                    }
+                    text.push('</ul>');
+                    return text.join("");
+                },
+                plugins: {
+                    labels: [
+                        {
+                            render: function (args) {
+                                return args.dataset.customValues[args.index];
+                            },
+                            fontColor: "white",
+                            overlap: true,
+                            fontSize: 16,
+                        }
+                    ]
+                },
+                tooltips: {
+                    callbacks: {
+                        title: function (tooltipTitle, a) {
+                            return a.datasets[0].customData[tooltipTitle[0].index];
+                        },
+                        label: function (tooltipItem, a) {
+                            return a.labels[tooltipItem.index];
+                        }
+                    }
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            },
+        });
+        $("#chartjs-legend").html(myChart.generateLegend());
+        $("#chartjs-legend").on('click', "li", function () {
+            if (myChart.data.datasets[0].customValues[$(this).index()]) {
+                delete myChart.data.datasets[0].customValues[$(this).index()];
+                delete myChart.data.datasets[0].data[$(this).index()];
+
+                myChart.data.datasets[0].customValuesObjects[$(this).index()].forEach(function (a, b) {
+                    $('#' + a).fadeOut();
+                });
+
+                $(this).css('text-decoration', 'line-through')
+                $(this).css('text-decoration-color', '#fff')
+            } else {
+                myChart.data.datasets[0].customValuesObjects[$(this).index()].forEach(function (a, b) {
+                    $('#' + a).fadeIn();
+                });
+                myChart.data.datasets[0].customValues[$(this).index()] = myChart.data.datasets[0].customValuesToDefault[$(this).index()];
+                myChart.data.datasets[0].data[$(this).index()] = myChart.data.datasets[0].dataDefault[$(this).index()];
+                $(this).css('text-decoration', 'none')
+            }
+            myChart.update();
+        });
+        {/if}
+
+        {if !empty($tempo_max_abertura['content'])}
+        var opts = {
+            angle: 0,
+            lineWidth: 0.44,
+            radiusScale: 1,
+            pointer: {
+                length: 0.6,
+                strokeWidth: 0.035,
+                color: '#000000'
+            },
+            limitMax: false,
+            limitMin: false,
+            colorStart: 'red',
+            colorStop: {if $tempo_max_abertura['avg']['avg'] > $tempo_max_abertura['objetivo']['target']} 'red' {else}
+            'green' {/if},
+            strokeColor: '#f1f1f1',
+            generateGradient: true,
+            highDpiSupport: true,
+
+            renderTicks: {
+                divisions: 2,
+                divWidth: 1,
+                divLength: 0.7,
+                divColor: 'lightgrey',
+                subDivisions: 2,
+                subLength: 0.14,
+                subWidth: 1,
+                subColor: '#grey'
+            },
+
+        };
+        var target = document.getElementById('gauge');
+        var gauge = new Gauge(target).setOptions(opts);
+        gauge.maxValue = {$tempo_max_abertura['objetivo']['target']};
+        gauge.setMinValue(0);
+        gauge.animationSpeed = 17;
+        gauge.set({$tempo_max_abertura['avg']['avg']});
+        {/if}
+
+
+        {if !empty($erros_stock['content'])}
+        var _surveyLastDaysChartId = "erros-stock";
+        let test;
+        Morris.Line({
+            element: _surveyLastDaysChartId,
+            data: [{$erros_stock['formated']}],
+            xkey: 'Date',
+            ykeys: ['Valor', 'Objetivo'],
+            labels: ['Valor', 'Objetivo'],
+            resize: true,
+            hideHover: 'auto',
+            parseTime: false,
+            lineColors: ['lightblue', 'red'],
+            pointStrokeColors: ['black'],
+            xLabels: 'day',
+            behaveLikeLine: true,
+            xLabelAngle: 80,
+        });
+        {/if}
+
+        {if !empty($artigos_danificados['content'])}
+        var _surveyLastDaysChartId = "artigos-danificados";
+        Morris.Line({
+            element: _surveyLastDaysChartId,
+            data: [{$artigos_danificados['formated']}],
+            xkey: 'Date',
+            ykeys: ['Valor', 'Objetivo'],
+            labels: ['Valor', 'Objetivo'],
+            resize: true,
+            hideHover: 'auto',
+            parseTime: false,
+            lineColors: ['lightblue', 'red'],
+            pointStrokeColors: ['black'],
+            xLabels: 'day',
+            behaveLikeLine: true,
+            xLabelAngle: 80,
+        });
+        {/if}
+
+        {if !empty($palete_p_arrumar['content'])}
+        Morris.Line({
+            element: 'n-paletes-p-arrumar',
+            data: [{$palete_p_arrumar['formated']}],
+            xkey: 'Date',
+            ykeys: ['Valor', 'Objetivo'],
+            labels: ['Valor', 'Objetivo'],
+            resize: true,
+            hideHover: 'auto',
+            parseTime: false,
+            lineColors: ['lightblue', 'red'],
+            pointStrokeColors: ['black'],
+            xLabels: 'day',
+            behaveLikeLine: true,
+            xLabelAngle: 80,
+        });
+        {/if}
+
+        {if !empty($n_linhas_p_arrumar['content'])}
+        Morris.Line({
+            element: 'n-linhas-p-arrumar',
+            data: [{$n_linhas_p_arrumar['formated']}],
+            xkey: 'Date',
+            ykeys: ['Valor', 'Objetivo'],
+            labels: ['Valor', 'Objetivo'],
+            resize: true,
+            hideHover: 'auto',
+            parseTime: false,
+            lineColors: ['lightblue', 'red'],
+            pointStrokeColors: ['black'],
+            xLabels: 'day',
+            behaveLikeLine: true,
+            xLabelAngle: 80,
+        });
+
+        {/if}
+
+        {if !empty($n_linhas_p_separar_p_picking['content'])}
+        Morris.Line({
+            element: 'n-linhas-p-separar-p-picking',
+            data: [{$n_linhas_p_separar_p_picking['formated']}],
+            xkey: 'Date',
+            ykeys: ['Valor', 'Objetivo'],
+            labels: ['Valor', 'Objetivo'],
+            resize: true,
+            hideHover: 'auto',
+            parseTime: false,
+            lineColors: ['lightblue', 'red'],
+            pointStrokeColors: ['black'],
+            xLabels: 'day',
+            behaveLikeLine: true,
+            xLabelAngle: 80,
+        });
+        {/if}
+
+        {if !empty($capacidade_separacao['content'])}
+        Morris.Line({
+            element: 'capacidade_separacao',
+            data: [{$capacidade_separacao['formated']}],
+            xkey: 'Date',
+            ykeys: ['Valor', 'Objetivo'],
+            labels: ['Valor', 'Objetivo'],
+            resize: true,
+            hideHover: 'auto',
+            parseTime: false,
+            lineColors: ['lightblue', 'red'],
+            pointStrokeColors: ['black'],
+            xLabels: 'day',
+            behaveLikeLine: true,
+            xLabelAngle: 80,
+        });
+        {/if}
+
+        {if !empty($n_encomendas_p_enviar_loja_online['content'])}
+        Morris.Line({
+            element: 'n_encomendas_p_enviar_loja_online',
+            data: [{$n_encomendas_p_enviar_loja_online['formated']}],
+            xkey: 'Date',
+            ykeys: ['Valor', 'Objetivo'],
+            labels: ['Valor', 'Objetivo'],
+            resize: true,
+            hideHover: 'auto',
+            parseTime: false,
+            lineColors: ['lightblue', 'red'],
+            pointStrokeColors: ['black'],
+            xLabels: 'day',
+            behaveLikeLine: true,
+            xLabelAngle: 80,
+        });
+        {/if}
+    </script>
+{/block}

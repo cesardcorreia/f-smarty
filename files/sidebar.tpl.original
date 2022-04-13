@@ -1,0 +1,414 @@
+                <!-- sidebar: style can be found in sidebar.less -->
+                <section class="sidebar">
+
+                    <ul class="sidebar-menu">
+
+                        <li class="active">
+                            <a href="/">
+                                <i class="fa fa-tachometer-alt"></i> <span>Dashboard - {$username}</span>
+                            </a>
+                        </li>
+
+                        {if $user_perms.armazenamento.procurar eq true}
+                        <li>
+                            <a href="/armazenamento/procurar">
+                                <i class="fa fa-search"></i>
+                                <span>Procurar</span>
+                            </a>
+                        </li>
+                        {/if}
+
+                        {if $user_perms.entradas.main eq true}
+                        <li class="treeview {if $selected_main eq "entradas"}active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-sign-in-alt {if $entradas_abertas gt 0}text-danger{/if}"></i>
+                                <span>Receção de Mercadoria</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.entradas.criar eq true}
+                                    <li><a href="/entradas/iniciar/"><i class="fa fa-angle-double-right"></i> Iniciar Entrada</a></li>
+                                {/if}
+                                {if $user_perms.entradas.continuar eq true}
+                                <li><a href="/entradas/continuar/">{if $entradas_abertas gt 0}<small class="badge pull-right bg-red">{$entradas_abertas}</small>{/if}<i class="fa fa-angle-double-right"></i> Continuar Entrada</a></li>
+                                {/if}
+                                {if $user_perms.entradas.consultar eq true}
+                                <li><a href="/entradas/consultar/"><i class="fa fa-angle-double-right"></i> Consultar Entradas</a></li>
+                                {/if}
+                            </ul>
+                        </li>
+                        {/if}
+
+                        {if $user_perms.armazenamento.main eq true}
+                        <li class="treeview {if $selected_main eq "armazenamento"}active{/if}">
+                            <a href="#">
+                                <i class="fa fa-umbrella {if $separar_urgente gt 0}text-warning bg-warning{elseif $paletes_arrumar gt 0}text-danger{/if}"></i>
+                                <span>Armazenamento</span>
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </a>
+                            <ul class="treeview-menu">
+
+                                {if $user_perms.armazenamento.porarmazenar eq true}<li><a href="/armazenamento/por-armazenar/">{if $paletes_arrumar gt 0}<small class="badge pull-right bg-red">{$paletes_arrumar}</small>{/if}<i class="fa fa-angle-double-right"></i> Por Armazenar</a></li>{/if}
+                                {if $user_perms.armazenamento.procurar eq true}<li><a href="/armazenamento/procurar/"><i class="fa fa-angle-double-right"></i> Procurar</a></li>{/if}
+                                {if $user_perms.armazenamento.transferir eq true}<li><a href="/armazenamento/transferir/"><i class="fa fa-angle-double-right"></i> Transferir {if $base eq "WMS"}Palete{else}Caixa{/if}</a></li>{/if}
+                                {if $user_perms.armazenamento.transferirprodutos eq true}<li><a href="/armazenamento/transferir-produtos/"><i class="fa fa-angle-double-right"></i> Transferir Produtos</a></li>{/if}
+                                {if $user_perms.armazenamento.separar eq true}<li><a href="/armazenamento/separar/"><i class="fa fa-angle-double-right"></i> Separar Picking</a></li>
+                                <li><a href="/armazenamento/separar/?tipo=urgente">{if $separar_urgente gt 0}<small class="badge pull-right bg-yellow-gradient">{$separar_urgente}</small>{/if}<i class="fa fa-angle-double-right"></i> Separar (Urgente)</a></li>
+                                <li><a href="/armazenamento/separar/?tipo=arm2arm&print=1">{if $separar_arm2arm gt 0}<small class="badge pull-right bg-yellow-gradient">{$separar_arm2arm}</small>{/if}<i class="fa fa-angle-double-right"></i> Separar (W2W)</a></li>{/if}
+                            </ul>
+
+                        </li>
+                        {/if}
+
+                        {if $user_perms.saidas.main eq true}
+                        <li class="treeview {if $selected_main eq "saidas"}active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-sign-out-alt {if $saidas_abertas gt 0}text-danger{/if}"></i>
+                                <span>Saida de Mercadoria</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.saidas.criar eq true}<li><a href="/saidas/iniciar/"><i class="fa fa-angle-double-right"></i> Iniciar Saida</a></li>{/if}
+                                {if $user_perms.saidas.continuar eq true}<li><a href="/saidas/continuar/">{if $saidas_abertas gt 0}<small class="badge pull-right bg-red">{$saidas_abertas}</small>{/if}<i class="fa fa-angle-double-right"></i> Continuar Saída</a></li>{/if}
+                                {if $user_perms.saidas.consultar eq true}<li><a href="/saidas/consultar/"><i class="fa fa-angle-double-right"></i> Consultar Saídas</a></li>{/if}
+                                {if $user_perms.saidas.expedir eq true}<li><a href="/picking/preparar-saida/?tipo=1"><i class="fa fa-angle-double-right"></i> Expedir</a></li>{/if}
+                            </ul>
+                        </li>
+                        {/if}
+                        
+                        {if $user_perms.transferir.main eq true}
+                        <li class="treeview {if $selected_main eq "transferir"}active{/if}">
+                            <a href="#">
+
+                                <i class="fas fa-exchange-alt {if $saidas_abertas gt 0}text-danger{/if}"></i>
+                                <span>Transferir de Mercadoria</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.saidas.criar eq true}<li><a href="/transferir/iniciar/"><i class="fa fa-angle-double-right"></i> Iniciar Transferência</a></li>{/if}
+                                {if $user_perms.saidas.continuar eq true}<li><a href="/transferir/continuar/">{if $transferencias_pendentes gt 0}<small class="badge pull-right bg-red">{$transferencias_pendentes}</small>{/if}<i class="fa fa-angle-double-right"></i> Continuar Transferência</a></li>{/if}
+                                {if $user_perms.saidas.consultar eq true}<li><a href="/transferir/consultar/"><i class="fa fa-angle-double-right"></i> Consultar Transferências</a></li>{/if}
+                                <!--{if $user_perms.saidas.expedir eq true}<li><a href="/picking/preparar-saida/?tipo=1"><i class="fa fa-angle-double-right"></i> Expedir</a></li>{/if}-->
+                            </ul>
+                        </li>
+                        {/if}
+
+                        {if $user_perms.picking.main eq true}
+                        <li class="treeview {if $selected_main eq "picking"}active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-random "></i>
+                                <span>Picking</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.picking.stocks eq true}<li><a href="/stocks/"><i class="fa fa-angle-double-right"></i> Stocks Cegid</a></li>{/if}
+                                {if $user_perms.picking.stocks eq true}<li><a href="/picking/print-cross/"><i class="fa fa-angle-double-right"></i> Cross-Etiquetas</a></li>{/if}
+                                {if $user_perms.picking.pendentes eq true && ($user_type eq 'admin' || $user_type eq 'pickingmaster') }<li><a href="/picking/pendentes/">{if $pedidos_pendentes gt 0}<small class="badge pull-right bg-red">{$pedidos_pendentes}</small>{/if}<i class="fa fa-angle-double-right"></i> Pedidos Pendentes</a></li>{/if}
+                                {if $user_perms.picking.pendentes eq true}<li><a href="/picking/pendentesn/"><i class="fa fa-angle-double-right"></i> Próximo Pedido</a></li>{/if}
+                                {if $user_perms.picking.emcurso eq true}<li><a href="/picking/em-curso/">{if $pedidos_emcurso gt 0}<small class="badge pull-right bg-red">{$pedidos_emcurso}</small>{/if}<i class="fa fa-angle-double-right"></i> Pedidos em Curso</a></li>{/if}
+                                {if $user_perms.picking.pendentes eq true}<li><a href="/picking/pedidos-online/">{if $pedidos_online gt 0}<small class="badge pull-right bg-yellow">{$pedidos_online}</small>{/if}<i class="fa fa-angle-double-right"></i> Online - Pendentes </a></li>{/if}
+                                {if $user_perms.picking.pendentes eq true}<li><a href="/picking/pedidos-online-merged/">{if $pedidos_online_merged gt 0}<small class="badge pull-right bg-fuchsia">{$pedidos_online_merged}</small>{/if}<i class="fa fa-angle-double-right"></i> Online - Merged</a></li>{/if}
+                                {if $user_perms.picking.pedidosextra eq true}<li><a href="/picking/pedidos-extra/">{if $pedidos_extra gt 0}<small class="badge pull-right bg-blue">{$pedidos_extra}</small>{/if}<i class="fa fa-angle-double-right"></i> Pedidos Extra</a></li>{/if}
+                                {if $user_perms.picking.consultar eq true}<li><a href="/picking/consultar/"><i class="fa fa-angle-double-right"></i> Pedidos (Consultar)</a></li>{/if}
+                                {if $user_perms.picking.changecar eq true}<li><a href="/picking/change-car/"><i class="fa fa-angle-double-right"></i> Pegar Carro</a></li>{/if}
+                                {if $user_perms.picking.porarrumar eq true}<li><a href="/picking/otimiza-picking/"><i class="fa fa-angle-double-right"></i> Otimiza Picking</a></li>{/if}
+                                {if $user_perms.picking.porarrumar eq true}<li><a href="/picking/otimiza-vazias/"><i class="fa fa-angle-double-right"></i> Verifica Vazias</a></li>{/if}
+                                {if $user_perms.picking.porarrumar eq true}<li><a href="/picking/produtos-pesar/"><i class="fa fa-angle-double-right"></i> Pesar Produtos</a></li>{/if}
+                                {if $user_perms.picking.porarrumar eq true}<li><a href="/picking/por-arrumar/?cross-pick=1"><i class="fa fa-angle-double-right"></i> Cross-Pick</a></li>{/if}
+                                {if $user_perms.picking.porarrumar eq true}<li><a href="/picking/por-arrumar/">{if $picking_arrumar gt 0}<small class="badge pull-right bg-light-blue-gradient">{$picking_arrumar}</small>{/if}<i class="fa fa-angle-double-right"></i> Por Arrumar</a></li>{/if}
+                                {if $user_perms.settings.lojasordem eq true}<li><a href="/settings/lojas-ordem/"><i class="fa fa-angle-double-right"></i> Ordem de Picking</a></li>{/if}
+
+                                {if $user_perms.spv.expedir eq true}
+                                <li{if $selected_entry eq "expedir"} class="active"{/if}><a href="/spv/expedir/"><small class="total-spv-pendentes badge pull-right bg-yellow">{if $spv_pendentes}{$spv_pendentes}{/if}</small><i class="fa fa-angle-double-right"></i> Expedir SPVs</a></li>
+                                {/if}
+
+
+                            </ul>
+                        </li>
+                        {/if}
+
+                        {if $user_perms.expedicao.main eq true}
+                        <li class="treeview {if $selected_main eq "expedicao"}active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-truck "></i>
+                                <span>Expedição</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.expedicao.pesar eq true}<li><a href="/picking/preparar-saida/?tipo=2"><i class="fa fa-angle-double-right"></i> Pesar para expedir</a></li>{/if}
+                                {if $user_perms.expedicao.expedir eq true}<li><a href="/picking/preparar-saida/?tipo=1"><i class="fa fa-angle-double-right"></i> Expedir</a></li>{/if}
+
+                                {if $user_perms.operacoes_paletes.main eq true}
+                                    <li class="treeview{if $selected_secondary eq "operacoes-paletes"} active{/if}">
+                                        <a href="#">
+
+                                            <i class="fa fa-angle-double-right"></i>
+                                            <span>Paletes</span>
+                                            <i class="fa fa-angle-left pull-right"></i>
+
+                                        </a>
+
+                                        <ul class="treeview-menu{if $selected_secondary eq "operacoes-paletes"} active{/if}">
+                                            {if $user_perms.operacoes_paletes.entrada eq true}
+                                                <li{if $selected_entry eq "operacoes-paletes_entrada"} class="active"{/if}>
+                                                    <a href="/operacoes-diversas/entrada-paletes"><i class="fa fa-angle-double-right"></i> Entrada de paletes</a>
+                                                </li>
+                                            {/if}
+                                            {* {if $user_perms.operacoes_paletes.saida eq true}
+                                                <li{if $selected_entry eq "operacoes-paletes_saida"} class="active"{/if}>
+                                                    <a href="/operacoes-diversas/saida-paletes"><i class="fa fa-angle-double-right"></i> Saída de paletes</a>
+                                                </li>
+                                            {/if} *}
+                                        </ul>
+                                    </li>
+                                {/if}
+
+
+
+                                {if $user_perms.outras_expedicoes.main eq true}
+                                    <li class="treeview{if $selected_secondary eq "outras-expedicoes"} active{/if}">
+                                        <a href="#">
+
+                                            <i class="fa fa-angle-double-right"></i>
+                                            <span>Outras Expedições</span>
+                                            <i class="fa fa-angle-left pull-right"></i>
+
+                                        </a>
+
+                                        <ul class="treeview-menu{if $selected_secondary eq "outras-expedicoes"} active{/if}">
+                                            {if $user_perms.outras_expedicoes.etiquetas eq true}
+                                                <li{if $selected_entry eq "outras-expedicoes_etiquetas"} class="active"{/if}>
+                                                    <a href="/outras-expedicoes/etiquetas"><i class="fa fa-angle-double-right"></i> Imprimir etiquetas</a>
+                                                </li>
+                                            {/if}
+                                            {if $user_perms.outras_expedicoes.expedir eq true}
+                                                <li{if $selected_entry eq "outras-expedicoes_expedir"} class="active"{/if}>
+                                                    <a href="/outras-expedicoes/expedir">
+                                                        <small class="total-outros-pendentes badge pull-right bg-yellow">{if $outras_expedicoes_pendentes}{$outras_expedicoes_pendentes}{/if}</small>
+                                                        <i class="fa fa-angle-double-right"></i> Expedir
+                                                    </a>
+                                                </li>
+                                            {/if}
+                                        </ul>
+                                    </li>
+                                {/if}
+
+
+
+                            </ul>
+                        </li>
+                        {/if}
+
+                        <!-- <li class="treeview {if $selected_main eq "reports"}active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-signal"></i>
+                                <span>Reports</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                <li><a href="/entradas/iniciar/"><i class="fa fa-angle-double-right"></i> Iniciar Entrada</a></li>
+                                <li><a href="/entradas/continuar/">{if $entradas_abertas gt 0}<small class="badge pull-right bg-red">{$entradas_abertas}</small>{/if}<i class="fa fa-angle-double-right"></i> Continuar Entrada</a></li>
+                                <li><a href="/entradas/consultar/"><i class="fa fa-angle-double-right"></i> Consultar Entradas</a></li>
+                            </ul>
+                        </li> -->
+
+                        {if $user_perms.settings.main eq true}
+                        <li class="treeview {if $selected_main eq "settings"}active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-medkit"></i>
+                                <span>Definições</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.settings.pickingposicao eq true}<li><a href="/settings/picking-posicao/"><i class="fa fa-angle-double-right"></i> Alterar TIPO Picking</a></li>{/if}
+                                {if $user_perms.settings.armazenamentoposicao eq true}<li><a href="/settings/armazenamento-posicao/"><i class="fa fa-angle-double-right"></i> Criar Posições</a></li>{/if}
+                                {if $user_perms.settings.import eq true}<li><a href="/settings/import/"><i class="fa fa-angle-double-right"></i> Import Pedido</a></li>{/if}
+                                {if $user_perms.settings.import eq true}<li><a href="/settings/importfx/"><i class="fa fa-angle-double-right"></i> Importação PedidoFX</a></li>{/if}
+                                {if $user_perms.settings.import eq true}<li><a href="/settings/manual-import/"><i class="fa fa-angle-double-right"></i> Importação Manual</a></li>{/if}
+                                {if $user_perms.settings.export eq true}<li><a href="/settings/exports/"><i class="fa fa-angle-double-right"></i> Exportações</a></li>{/if}
+                                {if $user_perms.settings.settings eq true}<li><a href="/picking/list-perfumes/"><i class="fa fa-angle-double-right"></i> Perfumes</a></li>{/if}
+
+                                {if $user_perms.settings.users eq true}<li><a href="/settings/users/"><i class="fa fa-angle-double-right"></i> Utilizadores</a></li>{/if}
+                                {if $user_perms.settings.settings eq true}<li><a href="/settings/settings/"><i class="fa fa-angle-double-right"></i> Definições</a></li>{/if}
+                                {if $user_perms.settings.settings eq true}<li><a href="/settings/lojas-rotas/"><i class="fa fa-angle-double-right"></i> Rota Lojas</a></li>{/if}
+                                <li >
+                                    <a href="/settings/password">
+
+                                        <i class="fa fa-lock"></i>
+                                        <span>Alterar Password</span>
+
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        {/if}
+
+                        {if $user_perms.pedidos.main eq true}
+                        <li class="treeview {if $selected_main eq "pedidos"}active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-truck {if $pedidos_abertas gt 0}text-danger{/if}"></i>
+                                <span>Pedidos</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.pedidos.criar eq true}
+                                    <li><a href="/pedidos/iniciar/"><i class="fa fa-angle-double-right"></i> Iniciar Pedido</a></li>
+                                {/if}
+                                {if $user_perms.pedidos.continuar eq true}
+                                <li><a href="/pedidos/continuar/">{if $mpedidos_pendentes gt 0}<small class="badge pull-right bg-red">{$mpedidos_pendentes}</small>{/if}<i class="fa fa-angle-double-right"></i> Continuar Pedido</a></li>
+                                {/if}
+                                {if $user_perms.pedidos.consultar eq true}
+                                <li><a href="/pedidos/consultar/"><i class="fa fa-angle-double-right"></i> Consultar Pedido</a></li>
+                                {/if}
+                            </ul>
+                        </li>
+                        {/if}
+
+                        {if $user_perms.spv.main eq true}
+                        <li class="treeview{if $selected_main eq "spv"} active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-ambulance" data-fa-transform="flip-v"></i>
+                                <span>SPV</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.spv.ver eq true}
+                                <li{if $selected_entry eq "ver"} class="active"{/if}><a href="/spv/ver/"><i class="fa fa-angle-double-right"></i> Consultar SPV</a></li>
+                                {/if}
+                                {if $user_perms.spv.registar eq true}
+                                <li{if $selected_entry eq "registar"} class="active"{/if}><a href="/spv/registar/"><i class="fa fa-angle-double-right"></i> Registar SPV</a></li>
+                                {/if}
+                                {if $user_perms.spv.resumo eq true}
+                                <li{if $selected_entry eq "resumo"} class="active"{/if}><a href="/spv/resumo/"><i class="fa fa-angle-double-right"></i> Resumo de SPVs</a></li>
+                                {/if}
+                                {if $user_perms.spv.criticos eq true}
+                                <li{if $selected_entry eq "criticos"} class="active"{/if}><a href="/spv/criticos/"><small class="total-spv-criticos badge pull-right bg-red">{if $spv_criticos}{$spv_criticos}{/if}</small><i class="fa fa-angle-double-right"></i> SPVs Críticos</a></li>
+                                {/if}
+                                {if $user_perms.spv.expedir eq true}
+                                <li{if $selected_entry eq "expedir"} class="active"{/if}><a href="/spv/expedir/"><small class="total-spv-pendentes badge pull-right bg-yellow">{if $spv_pendentes}{$spv_pendentes}{/if}</small><i class="fa fa-angle-double-right"></i> Expedir SPVs</a></li>
+                                {/if}
+                            </ul>
+                        </li>
+                        {/if}
+
+
+                        {if $user_perms.entradas_loja.main eq true}
+                        <li class="treeview{if $selected_main eq "entradas-loja"} active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-share fa-rotate-90"></i>
+                                <span>Entradas Loja</span>
+                                <i class="fa fa-angle-left pull-right"></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.entradas_loja.iniciar eq true}
+                                <li{if $selected_entry eq "entradas-loja-iniciar"} class="active"{/if}><a href="/entradas-loja/iniciar/"><i class="fa fa-angle-double-right"></i> Iniciar Entrada</a></li>
+                                {/if}
+                                {if $user_perms.entradas_loja.continuar eq true}
+                                <li{if $selected_entry eq "entradas-loja-continuar"} class="active"{/if}><a href="/entradas-loja/continuar/"><i class="fa fa-angle-double-right"></i> Continuar Entradas</a></li>
+                                {/if}
+                                {if $user_perms.entradas_loja.consultar eq true}
+                                <li{if $selected_entry eq "entradas-loja-consultar"} class="active"{/if}><a href="/entradas-loja/consultar/"><i class="fa fa-angle-double-right"></i> Consultar Entradas</a></li>
+                                {/if}
+                            </ul>
+                        </li>
+                        {/if}
+
+
+                        {if $user_perms.inventario_geral.main eq true}
+                        <li class="treeview{if $selected_main eq "inventario-geral"} active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-clipboard-list" data-fa-transform="flip-v"></i>
+                                <span>Inventário Geral</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.inventario_geral.iniciar eq true}
+                                <li{if $selected_entry eq "iniciar"} class="active"{/if}><a href="/inventario-geral/iniciar/"><i class="fa fa-angle-double-right"></i> Iniciar Inventário</a></li>
+                                {/if}
+                                {if $user_perms.inventario_geral.continuar eq true}
+                                <li{if $selected_entry eq "continuar"} class="active"{/if}><a href="/inventario-geral/continuar/"><i class="fa fa-angle-double-right"></i> Continuar Inventário</a></li>
+                                {/if}
+                                {if $user_perms.inventario_geral.consultar eq true}
+                                <li{if $selected_entry eq "consultar"} class="active"{/if}><a href="/inventario-geral/consultar/"><i class="fa fa-angle-double-right"></i> Consultar Inventário</a></li>
+                                {/if}
+                            </ul>
+                        </li>
+                        {/if}
+
+
+                        {if $user_perms.inventario_parcial.main eq true}
+                        <li class="treeview{if $selected_main eq "inventario-parcial"} active{/if}">
+                            <a href="#">
+
+                                <i class="fa fa-clipboard-check"></i>
+                                <span>Inventário Parcial</span>
+                                <i class="fa fa-angle-left pull-right "></i>
+
+                            </a>
+                            <ul class="treeview-menu">
+                                {if $user_perms.inventario_parcial.continuar eq true}
+                                <li{if $selected_entry eq "continuar"} class="active"{/if}><a href="/inventario-parcial/continuar/"><i class="fa fa-angle-double-right"></i> Continuar Inventário(s)</a></li>
+                                {/if}
+                                {if $user_perms.inventario_parcial.validar eq true}
+                                <li{if $selected_entry eq "validar"} class="active"{/if}><a href="/inventario-parcial/validar/"><i class="fa fa-angle-double-right"></i> Processar Inventários</a></li>
+                                {/if}
+                                {if $user_perms.inventario_parcial.painel_pedidos eq true}
+                                <li{if $selected_entry eq "painel-pedidos"} class="active"{/if}><a href="/inventario-parcial/painel-pedidos/"><i class="fa fa-angle-double-right"></i> Painel de Pedidos</a></li>
+                                {/if}
+                            </ul>
+                        </li>
+                        {/if}
+
+
+                        <li>
+                            <a href="/user/logout">Sair</a>
+                        </li>
+
+                        <!--<li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-bar-chart-o"></i>
+                                <span>Re-Abastecimento</span>
+
+                                <i class="fa fa-angle-left pull-right"></i>
+                                <small class="badge bg-red">3</small>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li><a href="/vendas/lojas-compararp/"><i class="fa fa-angle-double-right"></i> Comparar Periodos</a></li>
+                            </ul>
+                        </li>
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-bar-chart-o"></i>
+                                <span>Picking</span>
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li><a href="/vendas/lojas-compararp/"><i class="fa fa-angle-double-right"></i> Comparar Periodos</a></li>
+                            </ul>
+                        </li>-->
+
+
+                    </ul>
+                </section>
+                <!-- /.sidebar -->
